@@ -1,0 +1,26 @@
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const router = express.Router();
+
+router.post('/', (req, res) => {
+    jwt.verify(req.token, 'secretkey', (err, authData) => {
+        if(err){
+            // res.sendStatus(403);
+            res.json({
+                token: req.token,
+                error: err
+            })
+        }
+        else {
+            res.json({
+                message: "Post created",
+                authData
+            })
+        }
+    })
+    res.json({
+        message: "welcome to post"
+    });
+});
+
+module.exports = router;

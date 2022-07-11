@@ -1,0 +1,5 @@
+
+const SUCCESS = true;
+const ERROR = false;
+
+module.exports = {SUCCESS, ERROR};
