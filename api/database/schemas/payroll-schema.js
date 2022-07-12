@@ -11,6 +11,7 @@ const PersonalInfoSchema = mongoose.Schema({
 /** ___________________________PAYEE BANK DETAILS_________________________ */
 
 const BankDetailsSchema = mongoose.Schema({
+  bank_name: {type: String, required: true},
   account_no: {type: String, required: true},
   account_type: {type: String, required: true},
 });
