@@ -36,6 +36,7 @@ router.put('/', async (req, res) => {
                               phone_no: element.phone_no,
                             },
                             bank_detail: {
+                              bank_name: element.bank_name,
                               account_no: element.account_no,
                               account_type: element.account_type,
                             },

@@ -37,6 +37,7 @@ router.put("/bank/:payeeId", async (req, res) => {
           { "payroll.payee_id": req.params.payeeId },
           {
             $set: {
+              "payroll.bank_detail.bank_name": req.body.bank_name,
               "payroll.bank_detail.account_no": req.body.account_no,
               "payroll.bank_detail.account_type": req.body.account_type,
             },
