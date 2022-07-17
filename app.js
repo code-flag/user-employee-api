@@ -20,6 +20,7 @@ const userLogin = require('./api/routes/user/login');
 const createPayroll = require('./api/routes/payroll/create-payroll');
 const updatePayroll = require('./api/routes/payroll/update-payroll');
 const getPayroll = require('./api/routes/payroll/get-paroll');
+const getAllPayroll = require('./api/routes/payroll/get-all');
 const deletePayroll = require('./api/routes/payroll/delete-payroll');
 const updatePayee = require('./api/routes/payroll/payee/update-payee');
 
@@ -32,7 +33,7 @@ app.use(express.urlencoded({extended: false}));
 
 /** __________________________Swagger definition________________________________ */
 const swaggerOptions = {
-    definition: {
+    swaggerDefinition: {
         openapi: "3.0.0",
         info: {
             title: "Nellalink Payroll Api",
@@ -52,11 +53,46 @@ const swaggerOptions = {
                     url: "http://localhost:5100",
                     description: "local server"
                 }
-            ]
-        }
+            ],
+            
+            
+        },
+        components: {
+            securitySchemes: {
+                jwt: {
+                    type: "http",
+                    scheme: "bearer",
+                    in: "header",
+                    bearerFormat: "JWT"
+                },
+            }
+        },
+    
+        security: [{
+            jwt: []
+        }],
     },
+
     apis: ['app.js']
 }
+
+const swaggerAPISecurity = {
+    components: {
+        securitySchemes: {
+            jwt: {
+                type: "http",
+                scheme: "bearer",
+                in: "header",
+                bearerFormat: "JWT"
+            },
+        }
+    },
+
+    security: [{
+        jwt: []
+    }],
+    swagger: "2.0"
+} 
 /** instatiate swagger constructor */
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 
@@ -72,6 +108,7 @@ app.post('/poost', (req, res) => {});
 app.use('/api/user/payroll', VerifyToken, createPayroll);
 app.use('/api/user/payroll', VerifyToken, updatePayroll);
 app.use('/api/user/payroll', VerifyToken, getPayroll);
+app.use('/api/payrolls', getAllPayroll);
 app.use('/api/user/payroll', VerifyToken, deletePayroll);
 app.use('/api/user/payee', VerifyToken, updatePayee);
 
@@ -302,20 +339,87 @@ app.listen(PORT || 5100, () => {
 /**
  * @swagger
  * paths:
+ *  /api/payrolls:
+ *  
+ *    get:
+ *      summary: Get all the list of payroll - authentication not required
+ *      tags:
+ *        - User
+ *      description: Get all the list of payroll - authentication not required
+ *      name: Payroll
+ *      responses:
+ *        200:
+ *          description: request successfully
+ *          content: 
+ *          text/json:
+ *        500:
+ *          description: internal error
+ * 
+ *  /api/payrolls/{userId}:
+ *    get:
+ *      summary: Get all the list of payroll - authentication not required
+ *      tags:
+ *        - User
+ *      description: Get all the list of payroll - authentication not required
+ *      name: Payroll
+ *      parameters: 
+ *        - in: path
+ *          required: true
+ *          name: userId
+ *          example: '1 or jneskyu738yh5b73wa$^#%skjvhb'
+ *          schema:
+ *            type: string
+ *      security:
+ *        - jwt: []
+ *      responses:
+ *        200:
+ *          description: request successfully
+ *          content: 
+ *          text/json:
+ *        500:
+ *          description: internal error
+ * 
+ * 
  *  /api/user/payroll:
  *    post:
  *      summary: Create payroll
  *      tags:
  *        - User
  *      description: Create user payroll 
- *      name: Payees
+ *      name: payees
  *      requestBody: 
  *        required: true
  *        content: 
  *          application/json:
  *            schema:
- *              type: object
- *              $ref: '#components/schemas/Payees'
+ *              type: array
+ *              items:
+ *                $ref: '#components/schemas/Payees'
+ *              example: { payees: [
+ *                          {
+ *                               "name": "James Bond",
+ *                               "email": "James Bond",
+ *                               "phoneNo": "07012546109",
+ *                               "bankName": "UBA",
+ *                               "accountNo": "00125461818",
+ *                               "accountType": "savings",
+ *                               "amount": 5000,
+ *                               "tax": 0.2
+ *                           },
+ *                           {
+ *                               "name": "James Bond",
+ *                               "email": "James Bond",
+ *                               "phoneNo": "07012546109",
+ *                               "bankName": "UBA",
+ *                               "accountNo": "00125461818",
+ *                               "accountType": "savings",
+ *                               "amount": 5000,
+ *                               "tax": 0.2
+ *                           }
+ *                       ] }
+ *               
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payroll created successfully
@@ -326,13 +430,14 @@ app.listen(PORT || 5100, () => {
  *              $ref: '#components/schemas/Payees-response'
  *        403:
  *          description: Forbidden
- *  
  *    get:
- *      summary: Get all the list of payroll - authentication not required
+ *      summary: Get a single user payroll - authentication required
  *      tags:
  *        - User
- *      description: Get all the list of payroll - authentication not required
- *      name: Payees-login
+ *      description: Get a single user payroll - authentication required
+ *      name: Payroll
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: request successfully
@@ -340,6 +445,7 @@ app.listen(PORT || 5100, () => {
  *          text/json:
  *        500:
  *          description: internal error
+ * 
  * 
  *    put:
  *      summary: Update payroll
@@ -352,8 +458,34 @@ app.listen(PORT || 5100, () => {
  *        content: 
  *          application/json:
  *            schema:
- *              type: object
- *              $ref: '#components/schemas/Payees'
+ *              type: array
+ *              items:
+ *                $ref: '#components/schemas/Payees'
+ *              example: { payees: [
+ *                          {
+ *                               "name": "James Bond",
+ *                               "email": "James Bond",
+ *                               "phoneNo": "07012546109",
+ *                               "bankName": "UBA",
+ *                               "accountNo": "00125461818",
+ *                               "accountType": "savings",
+ *                               "amount": 5000,
+ *                               "tax": 0.2
+ *                           },
+ *                           {
+ *                               "name": "James Bond",
+ *                               "email": "James Bond",
+ *                               "phoneNo": "07012546109",
+ *                               "bankName": "UBA",
+ *                               "accountNo": "00125461818",
+ *                               "accountType": "savings",
+ *                               "amount": 5000,
+ *                               "tax": 0.2
+ *                           }
+ *                       ] }
+ *               
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payroll created successfully
@@ -366,10 +498,12 @@ app.listen(PORT || 5100, () => {
  *          description: Forbidden
  * 
  *    delete:
- *      summary: Delete user payroll
+ *      summary: Delete user payroll - This used the current user auth data
  *      tags:
  *        - User
- *      name: Payees-login
+ *      name: Delete-Payee
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payroll deleted successfully
@@ -378,6 +512,31 @@ app.listen(PORT || 5100, () => {
  *        500:
  *          description: internal error
  * 
+ *  
+ *  /api/user/payroll/{userId}:
+ *    delete:
+ *      summary: Delete user payroll by id
+ *      tags:
+ *        - User
+ *      name: Delete-Payee
+ *      parameters: 
+ *        - in: path
+ *          required: true
+ *          name: userId
+ *          example: '1 or jneskyu738yh5b73wa$^#%skjvhb'
+ *          schema:
+ *            type: string
+ *      security:
+ *        - jwt: []
+ *      responses:
+ *        200:
+ *          description: payroll deleted successfully
+ *          content: 
+ *          text/json:
+ *        500:
+ *          description: internal error
+ * 
+ *  
  *  /api/user/payroll/payee:
  *    post:
  *      summary: Add a single payee to payroll
@@ -392,6 +551,8 @@ app.listen(PORT || 5100, () => {
  *            schema:
  *              type: object
  *              $ref: '#components/schemas/Payee'
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payroll created successfully
@@ -417,6 +578,8 @@ app.listen(PORT || 5100, () => {
  *            schema:
  *              type: object
  *              $ref: '#components/schemas/Schedule-settings'
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payroll created successfully
@@ -428,7 +591,7 @@ app.listen(PORT || 5100, () => {
  *        403:
  *          description: Forbidden
  *  /api/user/login:
- *    post:
+ *    get:
  *      summary: Login to get authentication for testing only
  *      tags:
  *        - User
@@ -459,6 +622,8 @@ app.listen(PORT || 5100, () => {
  *            schema:
  *              type: object
  *              $ref: '#components/schemas/Payees'
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -469,6 +634,8 @@ app.listen(PORT || 5100, () => {
  *      tags:
  *        - Payee
  *      description: Get list of all payee 
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -489,6 +656,8 @@ app.listen(PORT || 5100, () => {
  *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
  *          schema:
  *            type: string
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -512,6 +681,8 @@ app.listen(PORT || 5100, () => {
  *          schema:
  *            type: object
  *            $ref: '#components/schemas/Payee-personal-info'
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -530,6 +701,8 @@ app.listen(PORT || 5100, () => {
  *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
  *          schema:
  *            type: string
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -555,6 +728,8 @@ app.listen(PORT || 5100, () => {
  *          name: amount
  *          schema:
  *            type: integer
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -579,6 +754,8 @@ app.listen(PORT || 5100, () => {
  *          name: payeeTax
  *          schema:
  *            type: integer
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee tax successfully updated
@@ -605,6 +782,8 @@ app.listen(PORT || 5100, () => {
  *          schema:
  *            type: object
  *            $ref: '#components/schemas/Payee-personal-info'
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -634,6 +813,8 @@ app.listen(PORT || 5100, () => {
  *          schema:
  *            type: object
  *            $ref: '#components/schemas/Payee-personal-info'
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -660,6 +841,8 @@ app.listen(PORT || 5100, () => {
  *          schema:
  *            type: object
  *            $ref: '#components/schemas/Payee-benefits'
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -677,6 +860,8 @@ app.listen(PORT || 5100, () => {
  *      tags:
  *        - Schedule
  *      description: Get Schedule list 
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated
@@ -693,6 +878,8 @@ app.listen(PORT || 5100, () => {
  *      tags:
  *        - History
  *      description: Get user history - this also require user JWT authorization 
+ *      security:
+ *        - jwt: []
  *      responses:
  *        200:
  *          description: payee salary successfully updated

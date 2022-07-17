@@ -25,4 +25,22 @@ router.delete('/', async (req, res) => {
     })
 });
 
+router.delete('/:userId', async (req, res) => {
+    jwt.verify(req.token, key, (err, authData) => {
+        if(err){
+            res.sendStatus(403);
+        }
+        else {
+                UserPayroll.findOneAndRemove({'userId': req.params.userId}).then((data) => {
+                    res.status(200).json(
+                        getMessage(data, "Payroll successfully deleted", true)
+                      );
+                  })
+                  .catch((err) => {
+                res.status(200).json(getMessage(err, 'Something went wrong', false));
+            });
+        }
+    })
+});
+
 module.exports = router;

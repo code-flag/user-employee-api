@@ -44,6 +44,7 @@ router.put('/', async (req, res) => {
                               account_type: element.account_type,
                             },
                             amount: element.amount,
+                            tax: element?.tax,
                           });
                         });
                         // insert to database
