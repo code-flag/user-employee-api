@@ -3,15 +3,17 @@ const jwt = require('jsonwebtoken');
 const { UserPayroll } = require('../../database/schemas/payroll-schema');
 const getMessage = require('../../message/app-messages');
 const router = express.Router();
+require('dotenv/config');
+const key = process.env.API_SECRET_KEY;
 
 
 router.delete('/', async (req, res) => {
-    jwt.verify(req.token, 'secretkey', (err, authData) => {
+    jwt.verify(req.token, key, (err, authData) => {
         if(err){
             res.sendStatus(403);
         }
         else {
-                const userPayroll = UserPayroll.findOneAndRemove({'userId': authData.user.userId}).then((data) => {
+                UserPayroll.findOneAndRemove({'userId': authData.user.ID}).then((data) => {
                     res.status(200).json(
                         getMessage(data, "Payroll successfully deleted", true)
                       );

@@ -23,6 +23,24 @@ const PayeeSchema = mongoose.Schema({
   personal_info: [PersonalInfoSchema],
   bank_detail: [BankDetailsSchema],
   amount: {type: String, required: true},
+  tax: {type: Number, default: 1},
+  benifit_status: {type: Boolean, default: false},
+  benefits: {
+    bonus: {type: Number, default: 0},
+    transport: {type: Number, default: 0},
+    incentive: {type: Number, default: 0},
+    wardrope: {type: Number, default: 0}
+  }
+});
+
+/**
+ * _____________________PAYROLL Schedule Setting SCHEMA_________________________
+ */
+
+ const ScheduleSetting = mongoose.Schema({
+    period: {type: String, default: 'monthly'},
+    last_period: { type: Date, default: Date.now },
+    next_period: { type: Date, default: Date.now },
 });
 
 /**
@@ -32,7 +50,6 @@ const PayeeSchema = mongoose.Schema({
 const ScheduleSchema = mongoose.Schema({
   userId: String,
   actionTime: Date,
-  status: { type: Boolean, default: true },
   timeCreated: { type: Date, default: Date.now },
 });
 
@@ -51,7 +68,9 @@ const HistorySchema = mongoose.Schema({
 const UserSchema = mongoose.Schema({
   userId: { type: String, required: true },
   payroll: [PayeeSchema],
-  timeCreated: { type: Date, default: Date.now }
+  timeCreated: { type: Date, default: Date.now },
+  schedule_setting: [ScheduleSetting],
+  schedule_status: {type: Boolean, default: true}
 });
 
 UserPayroll = mongoose.model("UserPayroll", UserSchema);

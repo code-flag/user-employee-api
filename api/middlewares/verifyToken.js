@@ -1,3 +1,8 @@
+// const jwt = require("jsonwebtoken");
+// require('dotenv/config');
+// const token = process.env.API_TEST_TOKEN;
+// const key = process.env.API_SECRET_KEY;
+
 
 const VerifyToken = (req, res, next) => {
      // get herder value
@@ -12,6 +17,13 @@ const VerifyToken = (req, res, next) => {
      else { 
          res.sendStatus(403);
      }
+
+    //  jwt.verify(token, key, (err, authData) => {
+    //     console.log('error', err, 'token log', authData);
+
+    //     console.log('token log ID', authData.user.username);
+    
+    // });
 }
 
 module.exports = VerifyToken;

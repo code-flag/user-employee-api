@@ -1,0 +1,79 @@
+/**
+ * @swagger
+ * definitions: 
+ *  Payees: 
+ *   type: object
+ *   description: This consist the array of all the payee data
+ *   properties:
+ *    name:
+ *     type: string
+ *     description: payee full name
+ *     example: 'James Bond'
+ *    email:
+ *     type: string
+ *     description: payee full name
+ *     example: 'James Bond'
+ *    phone_no:
+ *     type: string
+ *     description: payee phone number
+ *     example: '07012546109'
+ *    bank_name:
+ *     type: string
+ *     description: payee bank name
+ *     example: 'UBA'
+ *    account_no:
+ *     type: string
+ *     description: payee account number
+ *     example: '00125461818'
+ *    account_type:
+ *     type: string
+ *     description: payee account type
+ *     example: 'savings'
+ *    amount:
+ *     type: integer
+ *     description: payee salary
+ *     example: '5000'
+ *    tax:
+ *     type: integer
+ *     description: payee tax percentage
+ *     example: 0.2
+ *  Payees-response: 
+ *   type: object
+ *   description: This consist the array of all the payee data
+ *   properties:
+ *    personal-info:
+ *      name:
+ *       type: string
+ *       description: payee full name
+ *       example: 'James Bond'
+ *      email:
+ *       type: string
+ *       description: payee full name
+ *       example: 'James Bond'
+ *      phone_no:
+ *       type: string
+ *       description: payee phone number
+ *       example: '07012546109'
+ *    bank-details:
+ *      bank_name:
+ *       type: string
+ *       description: payee bank name
+ *       example: 'UBA'
+ *      account_no:
+ *       type: string
+ *       description: payee account number
+ *       example: '00125461818'
+ *      account_type:
+ *       type: string
+ *       description: payee account type
+ *       example: 'savings'
+ *    amount:
+ *     type: integer
+ *     description: payee salary
+ *     example: '5000'
+ *    tax:
+ *     type: integer
+ *     description: payee tax percentage
+ *     example: 0.2
+ *     
+ */

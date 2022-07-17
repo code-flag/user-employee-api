@@ -1,0 +1,47 @@
+
+  {
+    "swagger": "3.0.1",
+  "definitions": {
+   "Payees": {
+    "type": "object",
+    "description": "This consist the array of all the payee data",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "payee full name",
+      "example": "James Bond"
+           },
+     "email": {
+      "type": "string",
+      "description": "payee full name",
+      "example": "James Bond"
+            },
+     "phone_no": {
+      "type": "string",
+      "description": "payee phone number",
+      "example": "07012546109"
+           },
+     "bank_name": {
+      "type": "string",
+      "description":" payee bank name",
+      "example": "UBA"
+           },
+     "account_no": {
+      "type": "string",
+      "description": "payee account number",
+      "example": "00125461818"
+           },
+     "account_type": {
+      "type": "string",
+      "description": " account type",
+      "example": "savings"
+           },
+     "amount": {
+      "type": "integer",
+      "description": "payee salary",
+      "example": "5000"
+           }
+      }
+    }
+  }
+}
