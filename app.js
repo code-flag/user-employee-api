@@ -15,14 +15,20 @@ const DBConnection = require('./api/database/connection'); DBConnection();
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 
-/** _________________________API ROUTES_______________________________ */
+/** _________________________API ROUTES___________________________________________ */
+/**_________________________Payroll__________________________ */
 const userLogin = require('./api/routes/user/login');
 const createPayroll = require('./api/routes/payroll/create-payroll');
+const addPayeeToPayroll = require('./api/routes/payroll/add-payee-to-payroll');
 const updatePayroll = require('./api/routes/payroll/update-payroll');
 const getPayroll = require('./api/routes/payroll/get-paroll');
 const getAllPayroll = require('./api/routes/payroll/get-all');
 const deletePayroll = require('./api/routes/payroll/delete-payroll');
-const updatePayee = require('./api/routes/payroll/payee/update-payee');
+/** __________________________Payee__________________________ */
+const addPayee = require('./api/routes/payroll/payee/add-payee');
+const deletePayee = require('./api/routes/payroll/payee/delete-payee');
+const getPayee = require('./api/routes/payroll/payee/get-payee');
+const updatePayeeData = require('./api/routes/payroll/payee/update-payee');
 
 /**_________________________________ Middleware ________________________________ */
 
@@ -76,23 +82,6 @@ const swaggerOptions = {
     apis: ['app.js']
 }
 
-const swaggerAPISecurity = {
-    components: {
-        securitySchemes: {
-            jwt: {
-                type: "http",
-                scheme: "bearer",
-                in: "header",
-                bearerFormat: "JWT"
-            },
-        }
-    },
-
-    security: [{
-        jwt: []
-    }],
-    swagger: "2.0"
-} 
 /** instatiate swagger constructor */
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 
@@ -106,11 +95,17 @@ app.use('/nella-swag', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 app.use('/api/user/login', userLogin );
 app.post('/poost', (req, res) => {});
 app.use('/api/user/payroll', VerifyToken, createPayroll);
+app.use('/api/user/payroll/payee', VerifyToken, addPayeeToPayroll);
 app.use('/api/user/payroll', VerifyToken, updatePayroll);
 app.use('/api/user/payroll', VerifyToken, getPayroll);
 app.use('/api/payrolls', getAllPayroll);
 app.use('/api/user/payroll', VerifyToken, deletePayroll);
-app.use('/api/user/payee', VerifyToken, updatePayee);
+/** ______________________Updating single payee data___________________ */
+app.use('/api/user/payee', VerifyToken, addPayee);
+app.use('/api/user/payee', VerifyToken, deletePayee);
+app.use('/api/user/payee', VerifyToken, getPayee);
+app.use('/api/user/payee', VerifyToken, updatePayeeData);
+
 
 app.listen(PORT || 5100, () => {
     console.log('server started on port', PORT);
@@ -294,6 +289,22 @@ app.listen(PORT || 5100, () => {
  *           type: integer
  *           description: payee incentives
  *           example: '0'
+ *     Payee-amount:
+ *       type: object
+ *       description: Use this to update payee bank details
+ *       properties:
+ *         amount:
+ *           type: integer
+ *           description: payee salary / amount
+ *           example: '52000'
+ *     Payee-tax:
+ *       type: object
+ *       description: Use this to update payee bank details
+ *       properties:
+ *         amount:
+ *           type: integer
+ *           description: payee salary / amount
+ *           example: '52000'
  * 
  */
 
@@ -398,7 +409,7 @@ app.listen(PORT || 5100, () => {
  *              example: { payees: [
  *                          {
  *                               "name": "James Bond",
- *                               "email": "James Bond",
+ *                               "email": "useremail@gmail.com",
  *                               "phoneNo": "07012546109",
  *                               "bankName": "UBA",
  *                               "accountNo": "00125461818",
@@ -408,7 +419,7 @@ app.listen(PORT || 5100, () => {
  *                           },
  *                           {
  *                               "name": "James Bond",
- *                               "email": "James Bond",
+ *                               "email": "useremail@gmail.com",
  *                               "phoneNo": "07012546109",
  *                               "bankName": "UBA",
  *                               "accountNo": "00125461818",
@@ -464,7 +475,7 @@ app.listen(PORT || 5100, () => {
  *              example: { payees: [
  *                          {
  *                               "name": "James Bond",
- *                               "email": "James Bond",
+ *                               "email": "useremail@gmail.com",
  *                               "phoneNo": "07012546109",
  *                               "bankName": "UBA",
  *                               "accountNo": "00125461818",
@@ -474,7 +485,7 @@ app.listen(PORT || 5100, () => {
  *                           },
  *                           {
  *                               "name": "James Bond",
- *                               "email": "James Bond",
+ *                               "email": "useremail@gmail.com",
  *                               "phoneNo": "07012546109",
  *                               "bankName": "UBA",
  *                               "accountNo": "00125461818",
@@ -550,12 +561,25 @@ app.listen(PORT || 5100, () => {
  *          application/json:
  *            schema:
  *              type: object
- *              $ref: '#components/schemas/Payee'
+ *              items:
+ *                $ref: '#components/schemas/Payees'
+ *              example: { payee: 
+ *                          {
+ *                               "name": "James Bond",
+ *                               "email": "useremail@gmail.com",
+ *                               "phoneNo": "07012546109",
+ *                               "bankName": "UBA",
+ *                               "accountNo": "00125461818",
+ *                               "accountType": "savings",
+ *                               "amount": 5000,
+ *                               "tax": 0.2
+ *                           }
+ *                       }
  *      security:
  *        - jwt: []
  *      responses:
  *        200:
- *          description: payroll created successfully
+ *          description: payee added successfully
  *          content: 
  *          application/json:
  *            schema:
@@ -621,7 +645,21 @@ app.listen(PORT || 5100, () => {
  *          application/json:
  *            schema:
  *              type: object
- *              $ref: '#components/schemas/Payees'
+ *              items:
+ *                $ref: '#components/schemas/Payees'
+ *              example: { payee: 
+ *                          {
+ *                               "name": "James Bond",
+ *                               "email": "useremail@gmail.com",
+ *                               "phoneNo": "07012546109",
+ *                               "bankName": "UBA",
+ *                               "accountNo": "00125461818",
+ *                               "accountType": "savings",
+ *                               "amount": 5000,
+ *                               "tax": 0.2
+ *                           }
+ *                       }
+ 
  *      security:
  *        - jwt: []
  *      responses:
@@ -723,11 +761,16 @@ app.listen(PORT || 5100, () => {
  *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
  *          schema:
  *            type: string
- *        - in: body
- *          required: true
- *          name: amount
- *          schema:
- *            type: integer
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#components/schemas/Payee-amount'
+ *            example: {
+ *                    amount : 52000
+ *                 }
  *      security:
  *        - jwt: []
  *      responses:

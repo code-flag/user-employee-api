@@ -10,7 +10,8 @@ const key = process.env.API_SECRET_KEY;
 
 const validateData = (data) => {
   // check for payee key
-  if (Object.keys(data).includes('payees')) {
+  console.log('this is payee', data);
+  if (Object.keys(data).includes('payee')) {
     return true;
   }
   else {
@@ -29,34 +30,28 @@ router.post("/", (req, res) => {
       console.log("body", isEmpty, authData.user.ID);
       if (isEmpty !== 0) {
         if (validateData(req.body)) {
-          const payee = [];
-          req.body.payees.forEach((element) => {
-            payee.push({
+          const payee = {
               payee_id: UUID(),
               personal_info: {
-                name: element.name,
-                email: element.email,
-                phone_no: element.phoneNo,
+                name: req.body.payee.name,
+                email: req.body.payee.email,
+                phone_no: req.body.payee.phoneNo,
               },
               bank_detail: {
-                bank_name: element.bankName,
-                account_no: element.accountNo,
-                account_type: element.accountType,
+                bank_name: req.body.payee.bankName,
+                account_no: req.body.payee.accountNo,
+                account_type: req.body.payee.accountType,
               },
-              amount: element.amount,
-            });
-          });
-          // insert to database
-          const userPayroll = new UserPayroll({
-            userId: authData.user.ID,
-            payroll: payee,
-          });
+              amount: req.body.payee.amount,
+            };
 
-          userPayroll
-            .save()
+          UserPayroll.updateOne(
+              {"userId": authData.user.ID},
+              { $addToSet: { payroll: payee } }
+            )
             .then((data) => {
               res.status(200).json(
-                  getMessage(data, "Payroll successfully Created", true)
+                  getMessage(data, "Payee added successfully", true)
                 );
             })
             .catch(err => {
