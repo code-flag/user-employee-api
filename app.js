@@ -54,6 +54,10 @@ const swaggerOptions = {
                  { 
                     url: "http://nellalink-payroll.herokuapp.com",
                     description: "production server"
+                },
+                { 
+                    url: "http://localhost:5100",
+                    description: "local server"
                 }
             ],
             
