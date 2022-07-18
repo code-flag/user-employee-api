@@ -28,7 +28,8 @@ router.get("/:payeeId", async (req, res) => {
       res.sendStatus(403);
     } else {
          UserPayroll.find(
-          { $and: [ {"userId": authData.user.ID}, {"payroll.payee_id":{ $eq : req.params.payeeId}}] },
+          { $and: [ {"userId": authData.user.ID}, {"payroll.payee_id":req.params.payeeId}] },
+          {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}
         ).then((data) => {
           res
           .status(200)

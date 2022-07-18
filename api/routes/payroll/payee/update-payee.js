@@ -6,18 +6,32 @@ const router = express.Router();
 require('dotenv/config');
 const key = process.env.API_SECRET_KEY;
 
+const camelCaseTokebabCase = str => {
+  return str.split('').map((letter, idx) => {
+    return letter.toUpperCase() === letter
+     ? `${idx !== 0 ? '-' : ''}${letter.toLowerCase()}`
+     : letter;
+  }).join('');
+}
+
+const camelCaseToUnderscore = str => {
+  return str.split('').map((letter, idx) => {
+    return letter.toUpperCase() === letter
+     ? `${idx !== 0 ? '_' : ''}${letter.toLowerCase()}`
+     : letter;
+  }).join('');
+}
+
+/** _____________________________Update Payee Salary_____________________________________ */
 router.put("/amount/:payeeId", async (req, res) => {
   jwt.verify(req.token, key, (err, authData) => {
     if (err) {
       res.sendStatus(403);
     } else {
 
-        console.log('param', req.params.payeeId);
-        console.log('body', req.body.amount );
-      
         UserPayroll.findOneAndUpdate(
-          { $and: [ {"userId": authData.user.ID}, {"payroll.payee_id": req.params.payeeId }] },
-          { $set: { "amount": req.body.amount } }, {'new': true}
+          { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
+          { $set: { "payroll.$.amount": req.body.amount } }, {'new': true}
         ).then((data) => {
           res
           .status(200)
@@ -29,50 +43,77 @@ router.put("/amount/:payeeId", async (req, res) => {
   });
 });
 
-router.put("/bank/:payeeId", async (req, res) => {
+ /** _____________________________Update Payee Tax_____________________________________ */
+router.put("/tax/:payeeId", async (req, res) => {
   jwt.verify(req.token, key, (err, authData) => {
     if (err) {
       res.sendStatus(403);
     } else {
-     
-      UserPayroll.updateOne(
-          { $and: [ {"userId": authData.user.ID}, {"payroll": {"payee_id": req.params.payeeId }}] },
+
+        UserPayroll.findOneAndUpdate(
+          { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
+          { $set: { "payroll.$.tax": req.body.tax } }, {'new': true}
+        ).then((data) => {
+          res
+          .status(200)
+          .json(getMessage(data, "Request Successfull", true));
+        }). catch ((err) => {
+        res.status(200).json(getMessage(err, "Something went wrong", false));
+      });
+    }
+  });
+});
+
+/** _____________________________Update Payee Bank details_____________________________________ */
+router.put("/bank/:payeeId", async (req, res) => {
+  jwt.verify(req.token, key, (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {     
+      UserPayroll.findOneAndUpdate(
+        { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
           {
             $set: {
-              "payroll.bank_detail.bank_name": req.body.bank_name,
-              "payroll.bank_detail.account_no": req.body.account_no,
-              "payroll.bank_detail.account_type": req.body.account_type,
+              "payroll.$.bank_detail": {
+                "bank_name": req.body.bankName,
+                "account_no": req.body.accountNo,
+                "account_type": req.body.accountType
+              }
             }
-          }
+          },
+          {'new': true}
           ).then((data) => {
             res
             .status(200)
-            .json(getMessage(data, "Request Successfull", true));
+            .json(getMessage(data, "Payee bank details successfully updated", true));
           }). catch ((err) => {
           res.status(200).json(getMessage(err, "Something went wrong", false));
         });
     }
   });
 });
+
+/** _____________________________Update Payee Personal Info_____________________________________ */
 router.put("/info/:payeeId", async (req, res) => {
   jwt.verify(req.token, key, (err, authData) => {
     if (err) {
       res.sendStatus(403);
     } else {
-      
-      UserPayroll.updateOne(
-          { $and: [ {"userId": authData.user.ID}, {"payroll": {"payee_id": req.params.payeeId }}] },
+      UserPayroll.findOneAndUpdate(
+        { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
           {
             $set: {
-              "payroll.personal_info.name": req.body.name,
-              "payroll.personal_info.email": req.body.email,
-              "payroll.personal_info.email": req.body.phone_no,
+              "payroll.$.personal_info":{
+                "name": req.body.name,
+                "email": req.body.email,
+                "phone_no": req.body.phoneNo,
+              }
             },
           }
           ).then((data) => {
             res
             .status(200)
-            .json(getMessage(data, "Request Successfull", true));
+            .json(getMessage(data, "Payee personal information Successfully updated", true));
           }). catch ((err) => {
           res.status(200).json(getMessage(err, "Something went wrong", false));
         });
@@ -80,29 +121,105 @@ router.put("/info/:payeeId", async (req, res) => {
   });
 });
 
-/** _______________________ BAsic Payee control___________________________ */
-router.put("/", async (req, res) => {
+// /** _____________________________Update Payee Personal Info_____________________________________ */
+// router.put("/info/:payeeId", async (req, res) => {
+//   jwt.verify(req.token, key, (err, authData) => {
+//     if (err) {
+//       res.sendStatus(403);
+//     } else {
+//       UserPayroll.findOneAndUpdate(
+//         { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
+//           {
+//             $set: {
+//               "payroll.$.personal_info":{
+//                 "name": req.body.name,
+//                 "email": req.body.email,
+//                 "phone_no": req.body.phoneNo,
+//               }
+//             },
+//           }
+//           ).then((data) => {
+//             res
+//             .status(200)
+//             .json(getMessage(data, "Payee personal information Successfully updated", true));
+//           }). catch ((err) => {
+//           res.status(200).json(getMessage(err, "Something went wrong", false));
+//         });
+//     }
+//   });
+// });
+
+
+/** _____________________________Update Payee individual bank data_____________________________________ 
+ * Use this only to update individual bank data
+*/
+router.put("/single/bank/:payeeId", async (req, res) => {
   jwt.verify(req.token, key, (err, authData) => {
     if (err) {
       res.sendStatus(403);
     } else {
 
-        console.log('param', req.params.payeeId);
-        console.log('body', req.body.amount );
-      try {
-        const userPayroll = UserPayroll.updateOne(
-          { "payee_id": req.params.payeeId },
-          { $set: { "amount": req.body.amount } }
-        );
+      console.log('body data', req.body);
+      
+      let dataKey = Object.keys(req.body)?.[0];
+      const val = req.body?.[dataKey];
+      dataKey = camelCaseToUnderscore(dataKey);
+      const queryKey = `payroll.$.bank_detail.${dataKey}`;
 
-        res
-          .status(200)
-          .json(getMessage(userPayroll, "Request Successfull", true));
-      } catch (err) {
-        res.status(200).json(getMessage(err, "Something went wrong", false));
-      }
+      console.log('rrr', queryKey);
+      
+
+      UserPayroll.findOneAndUpdate(
+        { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
+        { $set: {[queryKey] : val}},
+        { "new": true}
+        
+        ).then((data) => {
+            res
+            .status(200)
+            .json(getMessage(data, "Benefits Successfully updated", true));
+          }). catch ((err) => {
+          res.status(200).json(getMessage(err, "Something went wrong", false));
+        });
     }
   });
 });
+
+/** _____________________________Update Payee individual bank data_____________________________________ 
+ * Use this only to update individual bank data
+*/
+router.put("/single/info/:payeeId", async (req, res) => {
+  jwt.verify(req.token, key, (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+
+      console.log('body data', req.body);
+      
+      let dataKey = Object.keys(req.body)?.[0];
+      const val = req.body?.[dataKey];
+      dataKey = camelCaseToUnderscore(dataKey);
+      const queryKey = `payroll.$.personal_info.${dataKey}`;
+
+      console.log('rrr', queryKey);
+      
+
+      UserPayroll.findOneAndUpdate(
+        { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
+        { $set: {[queryKey] : val}},
+        { "new": true}
+        
+        ).then((data) => {
+            res
+            .status(200)
+            .json(getMessage(data, "Benefits Successfully updated", true));
+          }). catch ((err) => {
+          res.status(200).json(getMessage(err, "Something went wrong", false));
+        });
+    }
+  });
+});
+
+
 
 module.exports = router;

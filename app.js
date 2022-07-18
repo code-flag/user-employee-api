@@ -301,10 +301,10 @@ app.listen(PORT || 5100, () => {
  *       type: object
  *       description: Use this to update payee bank details
  *       properties:
- *         amount:
- *           type: integer
- *           description: payee salary / amount
- *           example: '52000'
+ *         tax:
+ *           type: number
+ *           description: payee tax
+ *           example: '0.2'
  * 
  */
 
@@ -377,7 +377,7 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: userId
- *          example: '1 or jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '1 or 87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
  *      security:
@@ -534,7 +534,7 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: userId
- *          example: '1 or jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '1 or 87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
  *      security:
@@ -691,7 +691,7 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: payeeId
- *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
  *      security:
@@ -710,7 +710,7 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: payeeId
- *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
  *        - in: body
@@ -736,7 +736,7 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: payeeId
- *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
  *      security:
@@ -758,7 +758,7 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: payeeId
- *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
  *      requestBody: 
@@ -789,14 +789,19 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: payeeId
- *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
- *        - in: body
- *          required: true
- *          name: payeeTax
- *          schema:
- *            type: integer
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#components/schemas/Payee-tax'
+ *            example: {
+ *                    tax : 1.0
+ *                 }
  *      security:
  *        - jwt: []
  *      responses:
@@ -816,15 +821,17 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: payeeId
- *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
- *        - in: body
- *          required: true
- *          name: bankDetails
- *          schema:
- *            type: object
- *            $ref: '#components/schemas/Payee-personal-info'
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#components/schemas/Payee-bank-details'
+ *         
  *      security:
  *        - jwt: []
  *      responses:
@@ -847,15 +854,16 @@ app.listen(PORT || 5100, () => {
  *        - in: path
  *          required: true
  *          name: payeeId
- *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
- *        - in: body
- *          required: true
- *          name: payeeInfo
- *          schema:
- *            type: object
- *            $ref: '#components/schemas/Payee-personal-info'
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#components/schemas/Payee-personal-info'
  *      security:
  *        - jwt: []
  *      responses:
@@ -867,23 +875,24 @@ app.listen(PORT || 5100, () => {
  * 
  *  /api/user/payee/benefits/{payeeId}:
  *    put:
- *      summary: update payee bank details
+ *      summary: update payee benefits - bonus, allowance etc
  *      tags:
  *        - Payee
- *      description: Update payee bank details 
+ *      description: Update payee benefits
  *      parameters: 
  *        - in: path
  *          required: true
  *          name: payeeId
- *          example: 'jneskyu738yh5b73wa$^#%skjvhb'
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
  *          schema:
  *            type: string
- *        - in: body
- *          required: true
- *          name: bankDetails
- *          schema:
- *            type: object
- *            $ref: '#components/schemas/Payee-benefits'
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#components/schemas/Payee-benefits'
  *      security:
  *        - jwt: []
  *      responses:

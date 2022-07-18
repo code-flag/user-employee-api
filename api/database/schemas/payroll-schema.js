@@ -16,21 +16,20 @@ const BankDetailsSchema = mongoose.Schema({
   account_type: {type: String, required: true},
 });
 
+const BenefitsSchema = mongoose.Schema({
+  bonus: {type: String, default: 0, required: true}
+});
+
 /** ___________________________PAYEE MAIN SCHEMA___________________________ */
 
 const PayeeSchema = mongoose.Schema({
   payee_id: String,
-  personal_info: [PersonalInfoSchema],
-  bank_detail: [BankDetailsSchema],
+  personal_info: PersonalInfoSchema,
+  bank_detail: BankDetailsSchema,
   amount: {type: String, required: true},
   tax: {type: Number, default: 1},
   benifit_status: {type: Boolean, default: false},
-  benefits: {
-    bonus: {type: Number, default: 0},
-    transport: {type: Number, default: 0},
-    incentive: {type: Number, default: 0},
-    wardrope: {type: Number, default: 0}
-  }
+  benefits: [BenefitsSchema]
 });
 
 /**
