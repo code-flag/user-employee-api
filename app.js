@@ -30,6 +30,17 @@ const deletePayee = require('./api/routes/payroll/payee/delete-payee');
 const getPayee = require('./api/routes/payroll/payee/get-payee');
 const updatePayeeData = require('./api/routes/payroll/payee/update-payee');
 
+/** ________________________Payee Benefit____________________ */
+const addBenefit = require('./api/routes/payroll/payee/benefits/add-benefit');
+const getBenefits = require('./api/routes/payroll/payee/benefits/get-benefits');
+const deleteBenefit = require('./api/routes/payroll/payee/benefits/delete-benefit');
+const updateBenefit = require('./api/routes/payroll/payee/benefits/update-benefit');
+
+/** _______________________Schedule settings_______________________________ */
+const getScheduleSetting = require('./api/routes/payroll/payroll-schedule/get-schedule-settings');
+const updateScheduleSetting = require('./api/routes/payroll/payroll-schedule/update-schedule-settings');
+const updateScheduleStatus = require('./api/routes/payroll/payroll-schedule/update-schedule-status');
+
 /**_________________________________ Middleware ________________________________ */
 
 // Body Parser middleware
@@ -105,6 +116,16 @@ app.use('/api/user/payee', VerifyToken, addPayee);
 app.use('/api/user/payee', VerifyToken, deletePayee);
 app.use('/api/user/payee', VerifyToken, getPayee);
 app.use('/api/user/payee', VerifyToken, updatePayeeData);
+/** ______________________Updating Payee Benefits data___________________ */
+app.use('/api/user/payee/benefit', VerifyToken, addBenefit);
+app.use('/api/user/payee/benefit', VerifyToken, deleteBenefit);
+app.use('/api/user/payee/benefit', VerifyToken, getBenefits);
+app.use('/api/user/payee/benefit', VerifyToken, updateBenefit);
+
+/** ______________________Updating Payee Benefits data___________________ */
+app.use('/api/user/payroll/schedule-setting', VerifyToken, getScheduleSetting);
+app.use('/api/user/payroll/schedule-setting', VerifyToken, updateScheduleSetting);
+app.use('/api/user/payroll/schedule-status', VerifyToken, updateScheduleStatus);
 
 
 app.listen(PORT || 5100, () => {
@@ -119,12 +140,21 @@ app.listen(PORT || 5100, () => {
  * tags:
  *   - name: User 
  *     description: API to manage payroll for any user - User JWT authorization is required for all the APIs
+ * 
  *   - name: Payee 
  *     description: API to manage individual payee records in payroll - User JWT authorization is required for all the APIs
+ * 
+ *   - name: Payee-data-updates
+ *     description: API to manage individual payee personal and bank details
+ * 
+ *   - name: Payee-Benefits
+ *     description: API to manage individual payee benefits
+ * 
  *   - name: Schedule 
  *     description: API to manage payroll for any user - User JWT authorization is required for all the APIs
  *   - name: History 
  *     description: API to manage payroll for any user - User JWT authorization is required for all the APIs
+ * 
  * */
 
 /**
@@ -289,6 +319,25 @@ app.listen(PORT || 5100, () => {
  *           type: integer
  *           description: payee incentives
  *           example: '0'
+ * 
+ *     Payee-benefit:
+ *       type: object
+ *       description: data after updating the payee personal-information
+ *       properties:
+ *         bonus:
+ *           type: integer
+ *           description: payee bonus
+ *           example: '0'
+ * 
+ *     Payee-benefit-key:
+ *       type: object
+ *       description: data after updating the payee personal-information
+ *       properties:
+ *         bonus:
+ *           type: string
+ *           description: payee bonus
+ *           example: '0'
+ * 
  *     Payee-amount:
  *       type: object
  *       description: Use this to update payee bank details
@@ -752,7 +801,7 @@ app.listen(PORT || 5100, () => {
  *    put:
  *      summary: update payee salary or amount
  *      tags:
- *        - Payee
+ *        - Payee-data-updates
  *      description: Update payee salary or amount 
  *      parameters: 
  *        - in: path
@@ -783,7 +832,7 @@ app.listen(PORT || 5100, () => {
  *    put:
  *      summary: update payee tax
  *      tags:
- *        - Payee
+ *        - Payee-data-updates
  *      description: Update tax
  *      parameters: 
  *        - in: path
@@ -815,7 +864,7 @@ app.listen(PORT || 5100, () => {
  *    put:
  *      summary: update payee bank details
  *      tags:
- *        - Payee
+ *        - Payee-data-updates
  *      description: Update payee bank details 
  *      parameters: 
  *        - in: path
@@ -844,7 +893,7 @@ app.listen(PORT || 5100, () => {
  *    put:
  *      summary: update payee personal information
  *      tags:
- *        - Payee
+ *        - Payee-data-updates
  *      description: update payee personal information
  *      consumes: 
  *       - application/json
@@ -873,12 +922,12 @@ app.listen(PORT || 5100, () => {
  *          description: Forbidden
  * 
  * 
- *  /api/user/payee/benefits/{payeeId}:
+ *  /api/user/payee/single/bank-detail/{payeeId}:
  *    put:
- *      summary: update payee benefits - bonus, allowance etc
+ *      summary: update payee bank single detail
  *      tags:
- *        - Payee
- *      description: Update payee benefits
+ *        - Payee-data-updates
+ *      description: Update payee bank single detail 
  *      parameters: 
  *        - in: path
  *          required: true
@@ -892,12 +941,148 @@ app.listen(PORT || 5100, () => {
  *          application/json:
  *            schema:
  *              type: object
- *              $ref: '#components/schemas/Payee-benefits'
+ *            example: { bankName: "FIDELITY"}
+ *         
  *      security:
  *        - jwt: []
  *      responses:
  *        200:
- *          description: payee salary successfully updated
+ *          description: payee bank detail successfully updated
+ *        403:
+ *          description: Forbidden
+ * 
+ * 
+ *  /api/user/payee/single/info/{payeeId}:
+ *    put:
+ *      summary: update payee single personal detail
+ *      tags:
+ *        - Payee-data-updates
+ *      description: Update payee single personal detail
+ *      parameters: 
+ *        - in: path
+ *          required: true
+ *          name: payeeId
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
+ *          schema:
+ *            type: string
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *            example: { email: "example@gmail.com"}
+ *         
+ *      security:
+ *        - jwt: []
+ *      responses:
+ *        200:
+ *          description: payee personal info successfully updated
+ *        403:
+ *          description: Forbidden
+ * 
+ * 
+ *  /api/user/payee/benefit/{payeeId}:
+ *    get:
+ *      summary: Get payee benefits - bonus, allowance etc
+ *      tags:
+ *        - Payee-Benefits
+ *      description: Get payee benefits
+ *      parameters: 
+ *        - in: path
+ *          required: true
+ *          name: payeeId
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
+ *          schema:
+ *            type: string
+ *      security:
+ *        - jwt: []
+ *      responses:
+ *        200:
+ *          description: Payee benefits request is successfully 
+ *        403:
+ *          description: Forbidden
+ * 
+ *    post:
+ *      summary: Add payee benefit - bonus, allowance etc
+ *      tags:
+ *        - Payee-Benefits
+ *      description: Add payee benefit
+ *      parameters: 
+ *        - in: path
+ *          required: true
+ *          name: payeeId
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
+ *          schema:
+ *            type: string
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *            example: {"transport" : 5000}
+ *      security:
+ *        - jwt: []
+ *      responses:
+ *        200:
+ *          description: payee benefit successfully added
+ *        403:
+ *          description: Forbidden
+ * 
+ *    put:
+ *      summary: Update payee benefit - bonus, allowance etc
+ *      tags:
+ *        - Payee-Benefits
+ *      description: Update payee benefit
+ *      parameters: 
+ *        - in: path
+ *          required: true
+ *          name: payeeId
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
+ *          schema:
+ *            type: string
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#components/schemas/Payee-benefit'
+ *            example: {"transport" : 5000}
+ *      security:
+ *        - jwt: []
+ *      responses:
+ *        200:
+ *          description: payee benefit successfully updated
+ *        403:
+ *          description: Forbidden
+ * 
+ *    delete:
+ *      summary: Delete payee single benefit - bonus, allowance etc
+ *      tags:
+ *        - Payee-Benefits
+ *      description: Delete payee single benefit
+ *      parameters: 
+ *        - in: path
+ *          required: true
+ *          name: payeeId
+ *          example: '87af6c841bbff6d74b9fdfd9fff276f6'
+ *          schema:
+ *            type: string
+ *      requestBody: 
+ *        required: true
+ *        content: 
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#components/schemas/Payee-benefit-key'
+ *            example: {"benefit" : "transport"}
+ *      security:
+ *        - jwt: []
+ *      responses:
+ *        200:
+ *          description: payee benefit successfully deleted
  *        403:
  *          description: Forbidden
  * 

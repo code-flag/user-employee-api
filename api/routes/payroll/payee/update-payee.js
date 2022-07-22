@@ -153,31 +153,26 @@ router.put("/info/:payeeId", async (req, res) => {
 /** _____________________________Update Payee individual bank data_____________________________________ 
  * Use this only to update individual bank data
 */
-router.put("/single/bank/:payeeId", async (req, res) => {
+router.put("/single/bank-detail/:payeeId", async (req, res) => {
   jwt.verify(req.token, key, (err, authData) => {
     if (err) {
       res.sendStatus(403);
     } else {
-
-      console.log('body data', req.body);
       
       let dataKey = Object.keys(req.body)?.[0];
       const val = req.body?.[dataKey];
       dataKey = camelCaseToUnderscore(dataKey);
       const queryKey = `payroll.$.bank_detail.${dataKey}`;
 
-      console.log('rrr', queryKey);
-      
-
       UserPayroll.findOneAndUpdate(
-        { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
+        { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}, ] },
         { $set: {[queryKey] : val}},
         { "new": true}
         
         ).then((data) => {
             res
             .status(200)
-            .json(getMessage(data, "Benefits Successfully updated", true));
+            .json(getMessage(data, "Bank detail Successfully updated", true));
           }). catch ((err) => {
           res.status(200).json(getMessage(err, "Something went wrong", false));
         });
@@ -200,10 +195,7 @@ router.put("/single/info/:payeeId", async (req, res) => {
       const val = req.body?.[dataKey];
       dataKey = camelCaseToUnderscore(dataKey);
       const queryKey = `payroll.$.personal_info.${dataKey}`;
-
-      console.log('rrr', queryKey);
       
-
       UserPayroll.findOneAndUpdate(
         { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
         { $set: {[queryKey] : val}},
@@ -212,7 +204,7 @@ router.put("/single/info/:payeeId", async (req, res) => {
         ).then((data) => {
             res
             .status(200)
-            .json(getMessage(data, "Benefits Successfully updated", true));
+            .json(getMessage(data, "Personal info Successfully updated", true));
           }). catch ((err) => {
           res.status(200).json(getMessage(err, "Something went wrong", false));
         });

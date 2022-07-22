@@ -29,7 +29,7 @@ const PayeeSchema = mongoose.Schema({
   amount: {type: String, required: true},
   tax: {type: Number, default: 1},
   benifit_status: {type: Boolean, default: false},
-  benefits: [BenefitsSchema]
+  benefits: []
 });
 
 /**
@@ -38,8 +38,8 @@ const PayeeSchema = mongoose.Schema({
 
  const ScheduleSetting = mongoose.Schema({
     period: {type: String, default: 'monthly'},
-    last_period: { type: Date, default: Date.now },
-    next_period: { type: Date, default: Date.now },
+    last_action_time: { type: Date, default: '' },
+    next_action_time: { type: Date, default: '' },
 });
 
 /**
@@ -68,7 +68,7 @@ const UserSchema = mongoose.Schema({
   userId: { type: String, required: true },
   payroll: [PayeeSchema],
   timeCreated: { type: Date, default: Date.now },
-  schedule_setting: [ScheduleSetting],
+  schedule_setting: ScheduleSetting,
   schedule_status: {type: Boolean, default: true}
 });
 

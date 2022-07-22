@@ -5,7 +5,7 @@ require('dotenv/config');
 const secretKey = process.env.API_SECRET_KEY;
 router.get("/", (req, res) => {
   const user = {
-    ID: 6,
+    ID: 3,
     username: "taiwo",
     user_email: "dev@dev.com",
     first_name: "",

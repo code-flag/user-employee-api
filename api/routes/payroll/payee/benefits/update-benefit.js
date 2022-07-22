@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { UserPayroll } = require("../../../../database/schemas/payroll-schema");
+const { camelCaseToUnderscore } = require("../../../../library/formatter");
 const getMessage = require("../../../../message/app-messages");
 const router = express.Router();
 require('dotenv/config');
@@ -9,19 +10,23 @@ const key = process.env.API_SECRET_KEY;
 /** _____________________________Update Payee Benefits_____________________________________ 
  * Use this only to update the entire benefits data
 */
-router.put("/add/benefit/:payeeId", async (req, res) => {
+router.put("/:payeeId", async (req, res) => {
     jwt.verify(req.token, key, (err, authData) => {
       if (err) {
         res.sendStatus(403);
       } else {
   
-        console.log('body data', req.body.benefits);
+        
         const benefits = req.body;
+        let dataKey = Object.keys(req.body)?.[0];
+      const val = req.body?.[dataKey];
+      dataKey = camelCaseToUnderscore(dataKey);
+      console.log('body data', req.body, dataKey);
+      const queryKey = `payroll.$.benefits.${dataKey}`;
+
         UserPayroll.findOneAndUpdate(
           { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
-          { $addToSet: {"payroll": {"benefits": req.body} }},
-          { "new": true}
-          
+          { $set: { [queryKey]: val}}, { "new": true}
           ).then((data) => {
               res
               .status(200)
@@ -33,3 +38,5 @@ router.put("/add/benefit/:payeeId", async (req, res) => {
     });
   });
   
+
+  module.exports = router;
