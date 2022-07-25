@@ -13,16 +13,17 @@ router.delete("/:payeeId", async (req, res) => {
     } else {
         const query = req.body.benefit;
         const queryKey = `payroll.$.benefits.${query}`;
+        // const queryKey = `benefits.$.${query}`;
         console.log(queryKey);
         console.log('body data', req.body.benefit);
       
-      UserPayroll.update( 
+      UserPayroll.findOneAndUpdate( 
         { $and: [ {"userId": authData.user.ID}, {"payroll" : {$elemMatch: {"payee_id":req.params.payeeId}}}] },
       {
-        $pull: {
-            queryKey
+        $unset: {
+            [queryKey] : 1
          } 
-      }, {safe:true}
+      }, {safe:true, multi: false}
       ).then((data) => {
         res.status(200).json(
             getMessage(data, "Benefit successfully deleted", true)

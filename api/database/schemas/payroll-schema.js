@@ -29,6 +29,7 @@ const PayeeSchema = mongoose.Schema({
   amount: {type: String, required: true},
   tax: {type: Number, default: 1},
   benifit_status: {type: Boolean, default: false},
+  in_payroll: {type: Boolean, default: false},
   benefits: []
 });
 
