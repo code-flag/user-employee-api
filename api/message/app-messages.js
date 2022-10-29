@@ -11,7 +11,7 @@ const getMessage = (retData, message, mtype) => {
     let msg;
     if (mtype === SUCCESS) {
          msg = {
-            error_status: false,
+            status: true,
             data: retData ,
             message: message
         }
@@ -20,9 +20,9 @@ const getMessage = (retData, message, mtype) => {
     }
     else if(mtype === ERROR) {
         msg = {
-            error_status: true,
+            status: false,
             message: message,
-            error: `${retData}}`
+            error: retData
         }
 
         return msg;

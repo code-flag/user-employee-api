@@ -1,6 +1,3 @@
-/**
- * @author - Francis Olawumi Awe <awefrancolaz@gmail.com>
- */
 
 /**
  * This function helps in converting camel case to kebabcase
